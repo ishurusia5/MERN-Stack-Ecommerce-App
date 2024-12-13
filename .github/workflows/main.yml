@@ -3,7 +3,7 @@ name: ECS Fargate CI/CD
 on:
   push:
     branches:
-      - master
+      - master  # Or change to the appropriate branch you want to trigger this workflow
 
 env:
   AWS_REGION: ap-south-1
@@ -26,6 +26,11 @@ jobs:
 
     - name: Log in to AWS ECR
       uses: aws-actions/amazon-ecr-login@v1
+      with:
+        registry-type: private
+      env:
+        AWS_REGION: ${{ env.AWS_REGION }}
+        ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
 
     - name: Set up AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -37,6 +42,8 @@ jobs:
     - name: Generate build number
       id: build_number
       run: |
+        # Generate a build number based on the current timestamp (or use any build logic)
+        echo "Build Number: $(date +'%Y%m%d%H%M%S')"
         echo "::set-output name=build_number::$(date +'%Y%m%d%H%M%S')"  # Example build number (timestamp)
 
     - name: Build Docker image
@@ -51,9 +58,15 @@ jobs:
       run: |
         docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }}
 
-    - name: Update ECS Task Definition
+    - name: Describe ECS Task Definition
       run: |
+        # Describe the existing ECS task definition
         ecs_task_definition=$(aws ecs describe-task-definition --task-definition ${{ env.TASK_DEFINITION_NAME }} --query "taskDefinition.taskDefinitionArn" --output text)
+        echo "Current Task Definition: $ecs_task_definition"
+
+    - name: Register new ECS Task Definition
+      run: |
+        # Register a new ECS task definition with the updated Docker image
         new_task_definition=$(aws ecs register-task-definition \
           --family ${{ env.TASK_DEFINITION_NAME }} \
           --container-definitions "[{\"name\":\"fargate\",\"image\":\"${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }}\",\"essential\":true}]" \
@@ -63,6 +76,7 @@ jobs:
 
     - name: Deploy to ECS
       run: |
+        # Update the ECS service with the new task definition
         ecs_update=$(aws ecs update-service \
           --cluster ${{ env.CLUSTER_NAME }} \
           --service ${{ env.SERVICE_NAME }} \
