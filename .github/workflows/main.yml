@@ -14,12 +14,16 @@ jobs:
       IMAGE_TAG: latest
       CLUSTER_NAME: fargate-CLUSTER
       SERVICE_NAME: frontend-service
-      TASK_DEFINITION_NAME: frontend-revision1.json
+      TASK_DEFINITION_NAME: frontend-revision1.json  # Use the correct path here
       CONTAINER_NAME: frontend
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
+
+      - name: List files in repository (for debugging)
+        run: |
+          ls -alh  # List all files to check if the task definition file exists
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -51,7 +55,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: frontend-task-definition.json  # Use your task definition file here
+          task-definition: frontend-revision1.json  # Ensure this path is correct
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
