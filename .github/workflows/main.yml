@@ -1,0 +1,72 @@
+name: ECS Fargate CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 490004620091.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REPOSITORY: fargate
+  CLUSTER_NAME: fargate-CLUSTER
+  SERVICE_NAME: frontend-service
+  TASK_DEFINITION_NAME: frontend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to AWS ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Generate build number
+      id: build_number
+      run: |
+        echo "::set-output name=build_number::$(date +'%Y%m%d%H%M%S')"  # Example build number (timestamp)
+
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }} .
+
+    - name: Tag Docker image
+      run: |
+        docker tag ${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }}
+
+    - name: Push Docker image to ECR
+      run: |
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }}
+
+    - name: Update ECS Task Definition
+      run: |
+        ecs_task_definition=$(aws ecs describe-task-definition --task-definition ${{ env.TASK_DEFINITION_NAME }} --query "taskDefinition.taskDefinitionArn" --output text)
+        new_task_definition=$(aws ecs register-task-definition \
+          --family ${{ env.TASK_DEFINITION_NAME }} \
+          --container-definitions "[{\"name\":\"fargate\",\"image\":\"${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.build_number.outputs.build_number }}\",\"essential\":true}]" \
+          --query "taskDefinition.taskDefinitionArn" \
+          --output text)
+        echo "New Task Definition: $new_task_definition"
+
+    - name: Deploy to ECS
+      run: |
+        ecs_update=$(aws ecs update-service \
+          --cluster ${{ env.CLUSTER_NAME }} \
+          --service ${{ env.SERVICE_NAME }} \
+          --task-definition $new_task_definition \
+          --query "service.serviceArn" \
+          --output text)
+        echo "ECS service updated: $ecs_update"
