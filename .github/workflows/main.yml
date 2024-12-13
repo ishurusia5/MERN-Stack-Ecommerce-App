@@ -14,7 +14,7 @@ jobs:
       IMAGE_TAG: latest
       CLUSTER_NAME: fargate-CLUSTER
       SERVICE_NAME: frontend-service
-      TASK_DEFINITION_NAME: frontend-task-definition.json  # Use your JSON task definition here
+      TASK_DEFINITION_NAME: arn:aws:ecs:ap-south-1:490004620091:task-definition/frontend
       CONTAINER_NAME: frontend
 
     steps:
