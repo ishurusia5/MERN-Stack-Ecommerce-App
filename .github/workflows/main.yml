@@ -14,7 +14,7 @@ jobs:
       IMAGE_TAG: latest
       CLUSTER_NAME: fargate-CLUSTER
       SERVICE_NAME: frontend-service
-      TASK_DEFINITION_NAME: frontend
+      TASK_DEFINITION_NAME: frontend-task-definition.json  # Use your JSON task definition here
       CONTAINER_NAME: frontend
 
     steps:
@@ -51,7 +51,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.TASK_DEFINITION_NAME }}
+          task-definition: frontend-task-definition.json  # Use your task definition file here
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
