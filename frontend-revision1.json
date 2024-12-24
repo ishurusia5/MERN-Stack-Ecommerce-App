@@ -4,8 +4,7 @@
         {
             "name": "frontend",
             "image": "490004620091.dkr.ecr.ap-south-1.amazonaws.com/frontend:latest",
-            "cpu": "256", 
-            "memory": "512",
+            "cpu": 0,
             "portMappings": [
                 {
                     "name": "frontend-80-tcp",
@@ -40,5 +39,53 @@
     "executionRoleArn": "arn:aws:iam::490004620091:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "revision": 1,
-    "volumes": []
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2024-12-24T04:51:35.113Z",
+    "registeredBy": "arn:aws:iam::490004620091:root",
+    "enableFaultInjection": false,
+    "tags": []
 }
