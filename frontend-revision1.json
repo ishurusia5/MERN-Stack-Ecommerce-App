@@ -4,7 +4,8 @@
         {
             "name": "frontend",
             "image": "490004620091.dkr.ecr.ap-south-1.amazonaws.com/frontend:latest",
-            "cpu": 0,
+            "cpu": "256", 
+            "memory": "512",
             "portMappings": [
                 {
                     "name": "frontend-80-tcp",
@@ -39,5 +40,5 @@
     "executionRoleArn": "arn:aws:iam::490004620091:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "revision": 1,
-    "volumes": [],
+    "volumes": []
 }
