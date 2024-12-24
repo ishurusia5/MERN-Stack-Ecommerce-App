@@ -10,11 +10,11 @@ jobs:
     env:
       AWS_REGION: ap-south-1
       ECR_REGISTRY: 490004620091.dkr.ecr.ap-south-1.amazonaws.com
-      REPOSITORY: fargate
+      REPOSITORY: frontend
       IMAGE_TAG: latest
-      CLUSTER_NAME: fargate-CLUSTER
-      SERVICE_NAME: frontend-service
-      TASK_DEFINITION_NAME: frontend-revision1.json  # Use the correct path here
+      CLUSTER_NAME: ECS-CLUSTER
+      SERVICE_NAME: frontend
+      TASK_DEFINITION_NAME: frontend-revision.json  # Use the correct path here
       CONTAINER_NAME: frontend
 
     steps:
