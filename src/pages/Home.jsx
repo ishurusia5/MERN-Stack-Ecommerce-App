@@ -116,7 +116,7 @@ function Home({ products, addToCart, error, loading }) {
       {/* Featured Products Section */}
       <Container maxWidth="lg">
         <Typography variant="h4" align="center" sx={{ my: 4, color: 'black', fontWeight: 700 }}>
-          Featured Products
+          Best Sellers
         </Typography>
         {error ? (
           <Alert severity="error">{error.message}</Alert>
